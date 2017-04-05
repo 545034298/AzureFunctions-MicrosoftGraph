@@ -8,27 +8,22 @@ var Q = require('q');
 
 var translate = {};   
  
- translate.getAccessToken = function(client_secret) {
+ translate.getAccessToken = function(subKey) {
     var deferred = Q.defer();
     request.post(
-    	'https://datamarket.accesscontrol.windows.net/v2/OAuth2-13',
+    	'https://api.cognitive.microsoft.com/sts/v1.0/issueToken?Subscription-Key=fd15b3ee3234461da335bb48b49f1020',
     	{
     		form : {
-    			grant_type : 'client_credentials',
-    			client_id : "AzureFunctionTranslator",
-    			client_secret : client_secret,
-    			scope : 'http://api.microsofttranslator.com'
+				'Content-Type':'application/json',
+				'Accept':'application/jwt'
     		}
     	},
-    	function (error, response, data) {
-    		if (!error && response.statusCode == 200) {
-    			var accessToken = JSON.parse(data).access_token;
-                deferred.resolve(accessToken);  
-    		}
-    		else
-    		{
-    		    deferred.reject(error);
-    		}
+    	function (err, response, body) {
+			if (err) {
+				deferred.reject(err);
+			} else {
+				deferred.resolve(body);
+			}
     	}
     );
     return deferred.promise;
@@ -37,18 +32,16 @@ var translate = {};
 translate.text = function(accessToken, langFrom, langTo, text){
     var deferred = Q.defer();
 	request.get({
-      url: "http://api.microsofttranslator.com/v2/Ajax.svc/Translate?from="+ langFrom +"&to="+ langTo +"&text="+text,
+      url: "https://api.microsofttranslator.com/v2/http.svc/Translate?from="+ langFrom +"&to="+ langTo +"&text="+text,
       headers: {
         'Authorization': 'Bearer ' + accessToken
       }
-    }, function  (error, response, data) {
-    		if (!error && response.statusCode == 200) {
-                deferred.resolve(data);        
-    		}
-    		else
-    		{
-    		    deferred.reject(error);
-    		}
+    }, function (err, response, body) {
+			if (err) {
+				deferred.reject(err);
+			} else {
+				deferred.resolve(body);
+			}
         }
     );
     return deferred.promise;
