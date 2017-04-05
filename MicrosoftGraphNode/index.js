@@ -47,7 +47,7 @@ module.exports = function (context, req) {
                     .then(function (translatedSubject) {
                         context.log('translated: ' + translatedSubject);
                         //update email body based on translation https://msdn.microsoft.com/office/office365/APi/mail-rest-operations#Updatemessages
-                        var jsonMsg = { "subject": translatedSubject };  
+                        var jsonMsg = { "subject": translatedSubject.split(/Serialization\/\"\>/)[1].split('<')[0]  };  
                         
                         request.patch({
                           url: reqUrl,
